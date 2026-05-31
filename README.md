@@ -31,3 +31,4 @@ PRs welcome. If a Twitch update breaks something, open an issue with the relevan
 ## License
 
 MIT
+# CleanTwitch
