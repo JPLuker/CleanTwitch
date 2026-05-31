@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanTwitch — Twitch without the noise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #9146FF;
+      --purple-dark: #6320c7;
+      --green: #1DB954;
+      --bg: #0e0e10;
+      --surface: #18181b;
+      --border: #2a2a2e;
+      --text: #efeff1;
+      --muted: #adadb8;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* HERO */
+    header {
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--purple);
+      color: white;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 3px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(48px, 8vw, 80px);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+
+    h1 span { color: var(--purple); }
+
+    .tagline {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 40px;
+    }
+
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.15s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover { opacity: 0.8; }
+    .btn-primary { background: var(--purple); color: white; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+
+    /* FEATURES */
+    .features {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 32px;
+    }
+
+    .feature-list { display: flex; flex-direction: column; gap: 0; }
+
+    .feature {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 16px;
+      align-items: start;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .feature:last-child { border-bottom: none; }
+
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .feature p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* INSTALL */
+    .install {
+      padding: 64px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .steps { display: flex; flex-direction: column; gap: 0; margin-top: 32px; }
+
+    .step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 16px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--purple);
+      margin-top: 2px;
+    }
+
+    .step h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+    .step p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    code {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+      color: var(--purple);
+    }
+
+    /* PRIVACY */
+    .privacy {
+      padding: 64px 0;
+    }
+
+    .privacy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 32px;
+      margin-top: 32px;
+    }
+
+    .privacy-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .privacy-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    .privacy-card p:last-child { margin-bottom: 0; }
+
+    .privacy-card strong { color: var(--text); font-weight: 500; }
+
+    .green { color: var(--green); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer p { font-size: 12px; color: var(--muted); }
+    footer a { color: var(--purple); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 500px) {
+      header { padding: 48px 0 40px; }
+      .features, .install, .privacy { padding: 48px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header>
+      <div class="badge">Chrome Extension</div>
+      <h1>Clean<span>Twitch</span></h1>
+      <p class="tagline">Twitch without the algorithmic noise. No recommended strangers, no lewd thumbnails — just the streamers you actually follow.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/JPLuker/CleanTwitch/releases/latest">↓ Download</a>
+        <a class="btn btn-ghost" href="https://github.com/JPLuker/CleanTwitch">GitHub →</a>
+      </div>
+    </header>
+
+    <section class="features">
+      <p class="section-label">What it does</p>
+      <div class="feature-list">
+        <div class="feature">
+          <div class="feature-icon">✕</div>
+          <div>
+            <h3>Kills the homepage carousel</h3>
+            <p>The big autoplay featured stream that greets you on twitch.tv is gone. No more strangers playing games you don't care about.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✕</div>
+          <div>
+            <h3>Removes recommended shelves</h3>
+            <p>All "Live channels we think you'll like" rows on the homepage and following page are hidden. You see what you chose to follow, nothing else.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✕</div>
+          <div>
+            <h3>Cleans the sidebar</h3>
+            <p>The "Live Channels" section in the sidebar — non-followed streamers Twitch pushes — is removed. Only your followed channels remain.</p>
+          </div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✓</div>
+          <div>
+            <h3>Keeps everything else</h3>
+            <p>Categories, search, your followed channels, chat — all untouched. CleanTwitch only removes content you didn't ask for.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="install">
+      <p class="section-label">Install</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div>
+            <h4>Download and unzip</h4>
+            <p>Grab the latest release zip from the button above and unzip it anywhere on your computer.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div>
+            <h4>Open extensions</h4>
+            <p>In Chrome, Brave, or Edge — navigate to <code>chrome://extensions</code> and toggle on <strong>Developer mode</strong> in the top right.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div>
+            <h4>Load unpacked</h4>
+            <p>Click <strong>Load unpacked</strong> and select the unzipped <code>twitch-following-redirect</code> folder.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div>
+            <h4>Done</h4>
+            <p>Open Twitch. The noise is gone.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy">
+      <p class="section-label">Privacy policy</p>
+      <div class="privacy-card">
+        <h3>CleanTwitch collects <span class="green">nothing</span>.</h3>
+        <p>CleanTwitch runs entirely on your device. It injects CSS and watches for DOM changes on <strong>twitch.tv</strong> to hide content elements. That's it.</p>
+        <p><strong>No data is collected.</strong> No analytics. No telemetry. No network requests are made by the extension. Nothing is stored, transmitted, or shared with anyone — including the developer.</p>
+        <p><strong>Permissions used:</strong> The extension requests access to <code>twitch.tv</code> only, solely to inject the hiding logic into the page.</p>
+        <p>Last updated: May 2026. Questions? Open an issue on <a href="https://github.com/JPLuker/CleanTwitch">GitHub</a>.</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>CleanTwitch is open source and MIT licensed.</p>
+      <p><a href="https://github.com/JPLuker/CleanTwitch">GitHub</a> &nbsp;·&nbsp; <a href="#privacy">Privacy policy</a></p>
+    </footer>
+
+  </div>
+</body>
+</html>
